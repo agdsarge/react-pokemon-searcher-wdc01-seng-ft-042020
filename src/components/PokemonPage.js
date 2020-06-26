@@ -9,7 +9,8 @@ class PokemonPage extends React.Component {
     constructor() {
         super()
         this.state = {
-            allMonsters: []
+            allMonsters: [],
+            search: ""
         }
     }
     componentDidMount() {
@@ -20,6 +21,46 @@ class PokemonPage extends React.Component {
             })
     }
 
+    pokemonSearch = (e) => {
+      this.setState({
+        search: e.target.value
+      })
+    }
+    
+    newPokemon = (e) => {
+      
+      let nuPokemon = {
+        name: e.target.name.value,
+        hp: e.target.hp.value,
+        sprites: {
+          front: e.target.frontUrl.value,
+          back: e.target.backUrl.value
+        }
+      }
+
+      fetch('http://localhost:3000/pokemon', {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accepts": "application/json"
+        },
+        body: JSON.stringify(nuPokemon)
+      }
+      )
+      .then(resp => resp.json())
+      .then(pokemon => {
+        this.setState({
+          allMonsters: [...this.state.allMonsters, pokemon]
+        })})
+
+    e.target.reset()
+        
+      
+      
+
+       
+    }
+
 
 
   render() {
@@ -27,11 +68,11 @@ class PokemonPage extends React.Component {
       <Container>
         <h1>Pokemon Searcher</h1>
         <br />
-        <PokemonForm />
+        <PokemonForm newPokemon={this.newPokemon}/>
         <br />
-        <Search />
+        <Search search={this.pokemonSearch}/>
         <br />
-        <PokemonCollection allMons={this.state.allMonsters}/>
+        <PokemonCollection allMons={this.state.allMonsters.filter(mon => mon.name.includes(this.state.search))}/>
       </Container>
     )
   }
